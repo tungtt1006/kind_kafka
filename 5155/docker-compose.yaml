@@ -32,7 +32,15 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
 
   influxdb:
-      container_name: influxdb
-      ports:
-          - '8086:8086'
-      image: 'docker.io/influxdb:2.2.0'
+    container_name: influxdb
+    ports:
+      - '8086:8086'
+    image: 'docker.io/influxdb:2.2.0'
+    volumes:
+      - $PWD/data:/var/lib/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: root
+      DOCKER_INFLUXDB_INIT_PASSWORD: 12345678
+      DOCKER_INFLUXDB_INIT_ORG: Testorg
+      DOCKER_INFLUXDB_INIT_BUCKET: test
