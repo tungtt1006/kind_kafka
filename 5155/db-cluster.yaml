@@ -4,5 +4,11 @@ name: kafka
 nodes:
   - role: control-plane
   - role: worker
+    labels:
+      tier: server1
   - role: worker
+    labels:
+      tier: server2
   - role: worker
+    labels:
+      tier: server3
