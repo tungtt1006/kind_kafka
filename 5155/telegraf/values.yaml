@@ -20,6 +20,8 @@ args: []
 env:
   - name: HOSTNAME
     value: "telegraf-polling-service"
+  - name: INFLUX_TOKEN
+    value: "AtYoRyqLmuXDr7QFa4Fr1aAWYFMh_XBMkelOfFPpoFhG1-qxyp2wZbBVBQBrBw7t4L-xYIb6ZidgcZG5OFWg6Q=="
 # An older "volumeMounts" key was previously added which will likely
 # NOT WORK as you expect. Please use this newer configuration.
 
@@ -59,7 +61,7 @@ tolerations: []
 #   effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
 
 service:
-  enabled: true
+  enabled: false
   type: ClusterIP
   annotations: {}
 rbac:
@@ -137,23 +139,29 @@ config:
             problem: 2
             critical: 3
   outputs:
-    # - influxdb:
-    #    urls:
-    #      - "http://influxdb.monitoring.svc:8086"
-    #    database: "telegraf"
-    - kafka:
-        brokers = ["localhost:9092"]
-        topic = "stock"
+    - influxdb_v2:
+        urls:
+          - "http://influxdb-influxdb2.default.svc.cluster.local:8086"
+        organization: "Testorg"
+        bucket: "stock"
+        token: "$INFLUX_TOKEN"
   inputs:
-    - statsd:
-        service_address: ":8125"
-        percentiles:
-          - 50
-          - 95
-          - 99
-        metric_separator: "_"
-        allowed_pending_messages: 10000
-        percentile_limit: 1000
+    - kafka_consumer:
+        brokers:
+          - "my-cluster-kafka-bootstrap.default.svc.cluster.local:9092"
+        topics:
+          - "stock"
+        max_message_len: 1000000
+        data_format: "json"
+    #- statsd:
+    #    service_address: ":8125"
+    #    percentiles:
+    #      - 50
+    #      - 95
+    #      - 99
+    #    metric_separator: "_"
+    #    allowed_pending_messages: 10000
+    #    percentile_limit: 1000
 metrics:
   health:
     enabled: false

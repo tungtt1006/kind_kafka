@@ -2,4 +2,4 @@
 
 # https://artifacthub.io/packages/helm/influxdata/telegraf
 
-helm install read-telegraf influxdata/telegraf -f ./telegraf/values.yaml -n app
+helm install telegraf influxdata/telegraf -f ./telegraf/values.yaml
