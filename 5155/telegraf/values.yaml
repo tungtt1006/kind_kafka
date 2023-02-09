@@ -25,14 +25,13 @@ env:
 # An older "volumeMounts" key was previously added which will likely
 # NOT WORK as you expect. Please use this newer configuration.
 
-# volumes:
-# - name: telegraf-output-influxdb2
-#   configMap:
-#     name: "telegraf-output-influxdb2"
-# mountPoints:
-# - name: telegraf-output-influxdb2
-#   mountPath: /etc/telegraf/conf.d
-#   subPath: influxdb2.conf
+volumes:
+- name: my-user-cert
+  secret:
+    secretName: "my-user-cert"
+mountPoints:
+- name: my-user-cert
+  mountPath: /etc/telegraf/cert
 
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
@@ -143,16 +142,19 @@ config:
         urls:
           - "http://influxdb-influxdb2.default.svc.cluster.local:8086"
         organization: "Testorg"
-        bucket: "stock"
+        bucket: "test"
         token: "$INFLUX_TOKEN"
   inputs:
     - kafka_consumer:
         brokers:
-          - "my-cluster-kafka-bootstrap.default.svc.cluster.local:9092"
+          - "strimzi-kafka-kafka-bootstrap.default.svc:9093"
         topics:
-          - "stock"
+          - "test"
         max_message_len: 1000000
         data_format: "json"
+        tls_ca: "/etc/telegraf/cert/ca.pem"
+        tls_cert: "/etc/telegraf/cert/cert.pem"
+        tls_key: "/etc/telegraf/cert/key.pem"
     #- statsd:
     #    service_address: ":8125"
     #    percentiles:

@@ -28,11 +28,17 @@ def get_json_data():
     return json.dumps(data) 
 
 def main():
-    producer = KafkaProducer(bootstrap_servers=['localhost:9092'])
+    producer = KafkaProducer(
+        bootstrap_servers=['bootstrap.myingress.com:443'],
+        security_protocol='SSL',
+        ssl_cafile='./cert/ca.pem',
+        ssl_certfile='./cert/cert.pem',
+        ssl_keyfile='./cert/key.pem',
+    )
 
     for _ in range(20000):
         json_data = get_json_data()
-        producer.send('stock', bytes(f'{json_data}','UTF-8'))
+        producer.send('test', bytes(f'{json_data}','UTF-8'))
         print(f"Sensor data is sent: {json_data}")
         time.sleep(5)
 
@@ -43,3 +49,4 @@ if __name__ == "__main__":
 # sudo apt install python3-pip
 # pip install kafka-python
 # python3 stock.py
+# {"temperature": 13.2, "humidity": 14.2, "wind": 15.4, "soil": 16.4}
