@@ -7,28 +7,28 @@ metadata:
 spec:
   authentication:
     type: tls
-  authorization:
-    type: simple
-    acls:
-      - resource:
-          type: topic
-          name: test
-          patternType: literal
-        operations:
-          - Describe
-          - Read
-          - Write
-          - Create
-          - Delete
-          - Alter
-      - resource:
-          type: group
-          name: telegraf_metrics_consumers
-          patternType: literal
-        operations:
-          - Describe
-          - Read
-          - Write
-          - Create
-          - Delete
-          - Alter
+  # authorization:
+  #   type: simple
+  #   acls:
+  #     - resource:
+  #         type: topic
+  #         name: test
+  #         patternType: literal
+  #       operations:
+  #         - Describe
+  #         - Read
+  #         - Write
+  #         - Create
+  #         - Delete
+  #         - Alter
+  #     - resource:
+  #         type: group
+  #         name: telegraf_metrics_consumers
+  #         patternType: literal
+  #       operations:
+  #         - Describe
+  #         - Read
+  #         - Write
+  #         - Create
+  #         - Delete
+  #         - Alter

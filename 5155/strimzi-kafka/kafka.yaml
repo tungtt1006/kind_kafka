@@ -7,12 +7,12 @@ spec:
     version: 3.3.2
     replicas: 1
     listeners:
-      # - name: plain
-      #   port: 9092
-      #   type: internal
-      #   tls: false
-      - name: tls
-        port: 9093
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      - name: external
+        port: 9094
         type: ingress
         tls: true
         authentication:
@@ -23,8 +23,7 @@ spec:
           brokers:
           - broker: 0
             host: broker-0.myingress.com
-    authorization:
-      type: simple
+          class: "nginx"
     readinessProbe:
       initialDelaySeconds: 15
       timeoutSeconds: 5

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quine
+  template:
+    metadata:
+      labels:
+        app: quine
+    spec:
+      containers:
+      - name: quine
+        image: thatdot/quine:1.5.1
+        ports:
+        - containerPort: 8080
+        env:
+        - name: CASSANDRA_ENDPOINTS
+          value: cassandra.default.svc.cluster.local:9042
+        command:
+        - 'sh'
+        - '-c'
+        - >
+          #!sh
+
+          java \
+
+          -Dquine.store.type="cassandra" \
+
+          -Dquine.store.keyspace="quine" \
+
+          -Dquine.store.should-create-keyspace=false \
+
+          -Dquine.store.replication-factor=1 \
+
+          -Dquine.store.write-consistency=LOCAL_QUORUM \
+
+          -Dquine.store.read-consistency=LOCAL_QUORUM \
+
+          -Dquine.store.local-datacenter="datacenter1" \
+
+          -Dquine.store.write-timeout="10s" \
+
+          -Dquine.store.read-timeout="10s" \
+
+          -Dquine.persistence.journal-enabled=false \
+
+          -Dquine.persistence.snapshot-singleton=true \
+
+          -Dquine.persistence.standing-query-schedule="on-node-sleep" \
+
+          -jar quine-assembly-1.5.1.jar
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quine
+spec:
+  selector:
+    app: quine
+  ports:
+    - name: default
+      port: 8080
+      targetPort: 8080

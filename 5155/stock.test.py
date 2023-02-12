@@ -31,9 +31,9 @@ def main():
     producer = KafkaProducer(
         bootstrap_servers=['bootstrap.myingress.com:443'],
         security_protocol='SSL',
-        ssl_cafile='./cert/ca.pem',
-        ssl_certfile='./cert/cert.pem',
-        ssl_keyfile='./cert/key.pem',
+        ssl_cafile='./cert/ca.crt',
+        ssl_certfile='./cert/user.crt',
+        ssl_keyfile='./cert/user.key',
     )
 
     for _ in range(20000):
@@ -48,5 +48,5 @@ if __name__ == "__main__":
 
 # sudo apt install python3-pip
 # pip install kafka-python
-# python3 stock.py
+# python3 stock.test.py
 # {"temperature": 13.2, "humidity": 14.2, "wind": 15.4, "soil": 16.4}

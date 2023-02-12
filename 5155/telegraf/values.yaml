@@ -25,13 +25,13 @@ env:
 # An older "volumeMounts" key was previously added which will likely
 # NOT WORK as you expect. Please use this newer configuration.
 
-volumes:
-- name: my-user-cert
-  secret:
-    secretName: "my-user-cert"
-mountPoints:
-- name: my-user-cert
-  mountPath: /etc/telegraf/cert
+volumes: []
+# - name: my-user-cert
+#   secret:
+#     secretName: "my-user-cert"
+mountPoints: []
+# - name: my-user-cert
+#   mountPath: /etc/telegraf/cert
 
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
@@ -147,14 +147,14 @@ config:
   inputs:
     - kafka_consumer:
         brokers:
-          - "strimzi-kafka-kafka-bootstrap.default.svc:9093"
+          - "strimzi-kafka-kafka-bootstrap.default.svc:9092"
         topics:
           - "test"
         max_message_len: 1000000
         data_format: "json"
-        tls_ca: "/etc/telegraf/cert/ca.pem"
-        tls_cert: "/etc/telegraf/cert/cert.pem"
-        tls_key: "/etc/telegraf/cert/key.pem"
+        # tls_ca: "/etc/telegraf/cert/ca.pem"
+        # tls_cert: "/etc/telegraf/cert/cert.pem"
+        # tls_key: "/etc/telegraf/cert/key.pem"
     #- statsd:
     #    service_address: ":8125"
     #    percentiles:
