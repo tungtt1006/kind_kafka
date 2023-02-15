@@ -385,16 +385,16 @@ schedulerName: ""
 terminationGracePeriodSeconds: ""
 ## @param extraVolumes Optionally specify extra list of additional volumes for cassandra container
 ##
-extraVolumes:
-  - name: config
-    configMap:
-      name: cassandra-config
+extraVolumes: []
+  # - name: config
+  #   configMap:
+  #     name: cassandra-config
 
 ## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts for cassandra container
 ##
-extraVolumeMounts:
-  - name: config
-    mountPath: /bitnami/cassandra/conf
+extraVolumeMounts: []
+  # - name: config
+  #   mountPath: /bitnami/cassandra/conf
 ## @param initContainers Add additional init containers to the cassandra pods
 ##
 initContainers: []

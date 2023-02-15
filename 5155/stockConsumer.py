@@ -4,15 +4,15 @@ from kafka import KafkaConsumer
 # Import sys module
 import sys
 
-# Define server with port
-bootstrap_servers = ['localhost:9092']
-
-# Define topic name from where the message will recieve
-topicName = 'stock'
-
 # Initialize consumer variable
-consumer = KafkaConsumer (topicName, group_id ='group1',bootstrap_servers =
-   bootstrap_servers)
+consumer = KafkaConsumer (
+    'quine-output',
+    bootstrap_servers = 'bootstrap.foobar.com:443',
+    security_protocol='SSL',
+    ssl_cafile='./cert/ca.crt',
+    ssl_certfile='./cert/user.crt',
+    ssl_keyfile='./cert/user.key'
+)
 
 # Read and print message from consumer
 for msg in consumer:
@@ -20,3 +20,7 @@ for msg in consumer:
 
 # Terminate the script
 sys.exit()
+
+# sudo apt install python3-pip
+# pip install kafka-python
+# python3 stock.test.py
