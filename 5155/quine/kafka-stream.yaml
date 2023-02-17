@@ -1,0 +1,31 @@
+version: 1
+title: Kafka Ingest
+contributor: https://github.com/landon9720
+summary: Ingest Kafka topic messages as graph nodes
+description: Ingests each message in the Kafka topic "quine" as a graph node
+ingestStreams:
+  - type: KafkaIngest
+    topics:
+      - quine
+    bootstrapServers: "strimzi-kafka-kafka-bootstrap:9092"
+    format:
+      type: CypherJson
+      query: |-
+        MATCH (n)
+        WHERE id(n) = idFrom($that)
+        SET n = $that
+standingQueries:
+  - pattern:
+      type: Cypher
+      query: MATCH (n) RETURN DISTINCT id(n) AS id
+      mode: DistinctId
+    outputs:
+      toKafka:
+        type: WriteToKafka
+        topic: quine-output
+        bootstrapServers: "strimzi-kafka-kafka-bootstrap:9092"
+        format:
+          type: JSON
+nodeAppearances: [ ]
+quickQueries: [ ]
+sampleQueries: [ ]

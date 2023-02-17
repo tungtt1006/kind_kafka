@@ -1,9 +1,3 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cassandra-initdb
-data:
-  init.cql: >
     CREATE KEYSPACE quine WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'};
 
     USE quine;

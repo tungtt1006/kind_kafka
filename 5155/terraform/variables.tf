@@ -12,3 +12,10 @@ variable "influxdb_user" {
 variable "influxdb_password" {
   type = string
 }
+
+variable "cassandra_user" {
+  type = string
+}
+variable "cassandra_password" {
+  type = string
+}
