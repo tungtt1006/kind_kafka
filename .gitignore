@@ -1,3 +1,5 @@
 5155/cert/
-5155/terraform/.terraform/
+**/.terraform/
+*.tfstate
+*.tfstate.*
 .env
