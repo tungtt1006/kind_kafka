@@ -13,7 +13,7 @@ resource "kubernetes_config_map_v1" "quine-io" {
 resource "kubernetes_deployment_v1" "quine-io" {
   depends_on = [
     helm_release.cassandra,
-    kubernetes_manifest.strimzi-kafka
+    kubectl_manifest.strimzi-kafka
   ]
 
   metadata {
@@ -60,7 +60,12 @@ resource "kubernetes_deployment_v1" "quine-io" {
 
           env {
             name  = "CASSANDRA_ENDPOINTS"
-            value = "write-cassandra.default.svc.cluster.local:9042"
+            value = join("", [
+              helm_release.cassandra.name,
+              ".",
+              helm_release.cassandra.namespace,
+              ".svc.cluster.local:9042"
+            ])
           }
           env {
             name  = "CASSANDRA_USERNAME"
@@ -72,7 +77,7 @@ resource "kubernetes_deployment_v1" "quine-io" {
           }
           env {
             name = "KAFKA_BOOTSTRAP_SERVER"
-            value = "strimzi-kafka-kafka-bootstrap:9092"
+            value = local.plain_kafka_bootstrap_server
           }
 
           volume_mount {
@@ -80,7 +85,7 @@ resource "kubernetes_deployment_v1" "quine-io" {
             mount_path = "/quine"
           }
 
-          command = ["sh", "-c", "#!sh \n java -Dconfig.file=/quine/quine.conf -jar quine-assembly-1.5.1.jar -r /quine/kafka-ingest.yaml --force-config"]
+          command = ["sh", "-c", "#!sh \n java -Dconfig.file=/quine/quine.conf -jar quine-assembly-1.5.1.jar -r /quine/kafka-ingest.yaml --force-config -x test=$KAFKA_BOOTSTRAP_SERVER"]
         }
       }
     }

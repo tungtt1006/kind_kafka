@@ -7,7 +7,7 @@ ingestStreams:
   - type: KafkaIngest
     topics:
       - quine
-    bootstrapServers: "strimzi-kafka-kafka-bootstrap:9092"
+    bootstrapServers: $test
     format:
       type: CypherJson
       query: |-
@@ -23,7 +23,7 @@ standingQueries:
       toKafka:
         type: WriteToKafka
         topic: quine-output
-        bootstrapServers: "strimzi-kafka-kafka-bootstrap:9092"
+        bootstrapServers: $test
         format:
           type: JSON
 nodeAppearances: [ ]
