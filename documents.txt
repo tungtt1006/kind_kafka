@@ -1,0 +1,20 @@
+1) Video 1:
+  - Link: https://www.loom.com/share/20b66be606eb40e69bef2726e6f322e5
+  - Video description:
+      +) Kafka producer (python app) sends messages to "quine" topic.
+
+      +) Quine app streams data:
+        An ingest query listens to data from "quine" topic => Handle data => A standing query sends data to "quine-output" topic.
+
+      +) Kafka consumer (python app) listens to messages from "quine-output" topic & print messages.
+
+2) Video 2:
+  - Link: https://www.loom.com/share/0424813817914d3c8b65b8b63f68b41d
+  - Video description: Prometheus & Grafana monitors Strimzi Kafka.
+
+3) Video 3:
+  - Link: https://www.loom.com/share/a5fe7edb14f34170a0c17ae6094c5d4e
+  - Video description:
+    +) Kafka producer (python app) sends messages to "test" topic.
+
+    +) Telegraf streams data: Listen to messages from "test" topic => Insert messages into Influxdb ("test" bucket).
