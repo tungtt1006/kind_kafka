@@ -18,3 +18,18 @@
     +) Kafka producer (python app) sends messages to "test" topic.
 
     +) Telegraf streams data: Listen to messages from "test" topic => Insert messages into Influxdb ("test" bucket).
+
+
+Description:
+- Kafka producer (python app) sends messages to "quine" topic.
+  => Message content: {'Date': '2000-03-23', 'Open': 85.30043029785156, 'High': 88.5193099975586, 'Low': 83.69098663330078, 'Close': 85.61337280273438}
+
+- Kafka producer (python app) sends messages to "quine1" topic.
+  => Message content: {'Date': '2000-03-20', 'Adj_Close': 69.9786605834961, 'Volume': 1420600}
+
+- Two ingest queries listen to data from "quine" & "quine1" topic
+  => Handle data: If the node with a specific date has not existed Quine creates a new node with this date, otherwise quine updates node properties.
+    E.g: If the node with date 2000-03-23 has not existed, quine creates a node with date 2000-03-23. If the node with date 2000-03-23 has existed, quine only updates properties of node with date 2000-03-23.
+  => A standing query sends data to "quine-output" topic.
+
+- Kafka consumer (python app) listens to messages from "quine-output" topic & print messages.
