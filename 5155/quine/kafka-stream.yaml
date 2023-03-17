@@ -7,23 +7,38 @@ ingestStreams:
   - type: KafkaIngest
     topics:
       - quine
-    bootstrapServers: $test
+    bootstrapServers: $KAFKA_BOOTSTRAP_SERVER
+    parallelism: 160
+    maximumPerSecond: 170 
     format:
       type: CypherJson
       query: |-
-        MATCH (n)
-        WHERE id(n) = idFrom($that)
-        SET n = $that
+        MATCH (t) WHERE id(t) = idFrom("Timestamp", $that.Timestamp)
+        SET
+          t:Timestamp,
+          t.Timestamp = $that.Timestamp
+        WITH t
+        MATCH (p) WHERE id(p) = idFrom("Portfolio", $that.Timestamp, $that.PortfolioID)
+        SET
+          p:Portfolio,
+          p.Timestamp = $that.Timestamp,
+          p.PortfolioID = $that.PortfolioID,
+          p.TargetProfit = $that.TargetProfit,
+          p.RealizedProfitLoss = $that.RealizedProfitLoss,
+          p.UnrealizedProfitLoss = $that.UnrealizedProfitLoss
+        MERGE (t)-[:HAS]->(p)
 standingQueries:
   - pattern:
       type: Cypher
-      query: MATCH (n) RETURN DISTINCT id(n) AS id
-      mode: DistinctId
+      query: |-
+        MATCH (t:Timestamp)-[:HAS]->(n:Portfolio)
+        RETURN strId(n) AS id, n.Timestamp AS Timestamp, n.PortfolioID AS PortfolioID, n.TargetProfit AS TargetProfit, n.RealizedProfitLoss AS RealizedProfitLoss, n.UnrealizedProfitLoss AS UnrealizedProfitLoss
+      mode: MultipleValues
     outputs:
       toKafka:
         type: WriteToKafka
         topic: quine-output
-        bootstrapServers: $test
+        bootstrapServers: $KAFKA_BOOTSTRAP_SERVER
         format:
           type: JSON
 nodeAppearances: [ ]

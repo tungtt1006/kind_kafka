@@ -10,7 +10,7 @@ resource "kubernetes_config_map_v1" "cassandra-initdb" {
 }
 
 resource "helm_release" "cassandra" {
-  name       = "write-cassandra"
+  name       = "cassandra"
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "cassandra"
   version    = "10.0.2"
@@ -20,6 +20,7 @@ resource "helm_release" "cassandra" {
     name  = "dbUser.password"
     value = var.cassandra_password
   }
+
   set {
     name  = "dbUser.user"
     value = var.cassandra_user
@@ -34,8 +35,19 @@ resource "helm_release" "cassandra" {
     name  = "persistence.enabled"
     value = true
   }
+
   set {
     name  = "persistence.size"
     value = "8Gi"
+  }
+
+  set {
+    name  = "resources.limits.cpu"
+    value = "2"
+  }
+
+  set {
+    name  = "resources.limits.memory"
+    value = "5Gi"
   }
 }

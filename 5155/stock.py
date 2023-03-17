@@ -1,49 +1,60 @@
 import time
 import json
 import random
-import pandas as pd
 
 from kafka import KafkaProducer
 
-config_ob = open('./config.json')
-config = json.load(config_ob)
 
-def random_temp_cels():
-    return round(random.uniform(-10, 50), 1)
+def random_timestamp():
+    return round(time.time())
 
-def random_humidity():
+def random_portfolio_id():
+    return round(random.uniform(0, 200))
+
+def random_target_profit():
     return round(random.uniform(0, 100), 1)
 
-def random_wind():
-    return round(random.uniform(0, 10), 1)
-
-def random_soil():
+def random_realized_profit_loss():
     return round(random.uniform(0, 100), 1)
 
-def get_json_data():
+def random_unrealized_profit_loss():
+    return round(random.uniform(0, 100), 1)
+
+def get_data():
     data = {}
 
-    data["temperature"] = random_temp_cels()
-    data["humidity"] = random_humidity()
-    data["wind"] = random_wind()
-    data["soil"] = random_soil()
+    data["PortfolioID"] = random_portfolio_id()
+    data["TargetProfit"] = random_target_profit()
+    data["RealizedProfitLoss"] = random_realized_profit_loss()
+    data["UnrealizedProfitLoss"] = random_unrealized_profit_loss()
 
     return json.dumps(data)
 
 def main():
-    producer = KafkaProducer(bootstrap_servers=['localhost:9092'])
-    csvReader = pd.read_csv('A.csv', index_col=0)
+    producer = KafkaProducer(
+        bootstrap_servers=['bootstrap.foobar.com:443'],
+        security_protocol='SSL',
+        ssl_cafile='./cert/ca.crt',
+        ssl_certfile='./cert/user.crt',
+        ssl_keyfile='./cert/user.key',
+        linger_ms=950
+    )
 
-    for row_index, row in csvReader.iterrows():
-        tags = row[0]
-        fieldvalue = row
-        dict_row = row.to_dict()
-        print(dict_row)
+    for _ in range(20000):
+        data = {}
+        data["Timestamp"] = random_timestamp()
+        for _ in range(160):
+            data["PortfolioID"] = random_portfolio_id()
+            data["TargetProfit"] = random_target_profit()
+            data["RealizedProfitLoss"] = random_realized_profit_loss()
+            data["UnrealizedProfitLoss"] = random_unrealized_profit_loss()
 
-        print(dict_row)
-        producer.send('stock', bytes(f'{json.dumps(dict_row)}','UTF-8'))
-        print(f"Sensor data is sent: {dict_row}")
-        time.sleep(5)
+            json_data = json.dumps(data)
+            producer.send('quine', bytes(f'{json_data}','UTF-8'))
+        
+            print(json_data)
+        
+        time.sleep(1)
 
 
 if __name__ == "__main__":

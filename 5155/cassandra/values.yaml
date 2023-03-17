@@ -105,7 +105,7 @@ image:
 dbUser:
   user: cassandra
   forcePassword: false
-  password: "adminpassword"
+  password: ""
   ## Use an existing secrets which already stores your password data.
   ## for backwards compatibility, existingSecret can be a simple string,
   ## referencing the secret by name.
@@ -347,7 +347,7 @@ readinessProbe:
   timeoutSeconds: 30
   successThreshold: 1
   failureThreshold: 5
-## Configure extra options for startup probe
+## Configure extra options for db probe
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
 ## @param startupProbe.enabled Enable startupProbe
 ## @param startupProbe.initialDelaySeconds Initial delay seconds for startupProbe
@@ -386,15 +386,11 @@ terminationGracePeriodSeconds: ""
 ## @param extraVolumes Optionally specify extra list of additional volumes for cassandra container
 ##
 extraVolumes: []
-  # - name: config
-  #   configMap:
-  #     name: cassandra-config
 
 ## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts for cassandra container
 ##
 extraVolumeMounts: []
-  # - name: config
-  #   mountPath: /bitnami/cassandra/conf
+
 ## @param initContainers Add additional init containers to the cassandra pods
 ##
 initContainers: []

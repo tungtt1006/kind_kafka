@@ -1,6 +1,6 @@
 resource "kubernetes_config_map_v1" "quine-io" {
   metadata {
-    name      = "quine-config"
+    name      = "kafka-ingest"
     namespace = var.namespace
   }
 
@@ -58,8 +58,19 @@ resource "kubernetes_deployment_v1" "quine-io" {
             container_port = 8080
           }
 
+          resources {
+            limits = {
+              cpu    = "2"
+              memory = "5Gi"
+            }
+            requests = {
+              cpu    = "0.5"
+              memory = "0.5Gi"
+            }
+          }
+
           env {
-            name  = "CASSANDRA_ENDPOINTS"
+            name = "CASSANDRA_ENDPOINTS"
             value = join("", [
               helm_release.cassandra.name,
               ".",
@@ -67,16 +78,19 @@ resource "kubernetes_deployment_v1" "quine-io" {
               ".svc.cluster.local:9042"
             ])
           }
+
           env {
             name  = "CASSANDRA_USERNAME"
             value = var.cassandra_user
           }
+
           env {
-            name = "CASSANDRA_PASSWORD"
+            name  = "CASSANDRA_PASSWORD"
             value = var.cassandra_password
           }
+
           env {
-            name = "KAFKA_BOOTSTRAP_SERVER"
+            name  = "KAFKA_BOOTSTRAP_SERVER"
             value = local.plain_kafka_bootstrap_server
           }
 
@@ -85,7 +99,11 @@ resource "kubernetes_deployment_v1" "quine-io" {
             mount_path = "/quine"
           }
 
-          command = ["sh", "-c", "#!sh \n java -Dconfig.file=/quine/quine.conf -jar quine-assembly-1.5.1.jar -r /quine/kafka-ingest.yaml --force-config -x test=$KAFKA_BOOTSTRAP_SERVER"]
+          command = [
+            "sh",
+            "-c",
+            "#!sh \n java -Xmx4800m -Dconfig.file=/quine/quine.conf -jar quine-assembly-1.5.1.jar -r /quine/kafka-ingest.yaml --force-config -x KAFKA_BOOTSTRAP_SERVER=$KAFKA_BOOTSTRAP_SERVER"
+          ]
         }
       }
     }
@@ -107,40 +125,40 @@ resource "kubernetes_service_v1" "quine-io" {
     port {
       name        = "http"
       port        = 8080
-      target_port = 8080
+      target_port = kubernetes_deployment_v1.quine-io.spec[0].template[0].spec[0].container[0].port[0].container_port
     }
   }
 }
 
-# resource "kubernetes_ingress_v1" "quine-io" {
-#   metadata {
-#     name      = "quineio"
-#     namespace = var.namespace
-#     annotations = {
-#       "kubernetes.io/ingress.class" = "nginx"
-#     }
-#   }
+resource "kubernetes_ingress_v1" "quine-io" {
+  metadata {
+    name      = "quineio"
+    namespace = var.namespace
+    annotations = {
+      "kubernetes.io/ingress.class" = "nginx"
+    }
+  }
 
-#   spec {
-#     rule {
-#       host = "quine.foobar.com"
+  spec {
+    rule {
+      host = "quine.foobar.com"
 
-#       http {
-#         path {
-#           path      = "/"
-#           path_type = "Prefix"
+      http {
+        path {
+          path      = "/"
+          path_type = "Prefix"
 
-#           backend {
-#             service {
-#               name = "quine-io"
+          backend {
+            service {
+              name = kubernetes_service_v1.quine-io.metadata[0].name
 
-#               port {
-#                 name = "http"
-#               }
-#             }
-#           }
-#         }
-#       }
-#     }
-#   }
-# }
+              port {
+                name = kubernetes_service_v1.quine-io.spec[0].port[0].name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
