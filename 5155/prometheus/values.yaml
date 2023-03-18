@@ -9,7 +9,7 @@ nameOverride: ""
 
 ## Override the deployment namespace
 ##
-namespaceOverride: "app"
+namespaceOverride: "default"
 
 ## Provide a k8s version to auto dashboard import script example: kubeTargetVersionOverride: 1.16.6
 ##
@@ -743,7 +743,7 @@ alertmanager:
 ##
 grafana:
   enabled: true
-  namespaceOverride: "app"
+  namespaceOverride: "default"
 
   ## ForceDeployDatasources Create datasource configmap even if grafana deployment has been disabled
   ##
@@ -1183,7 +1183,7 @@ kubelet:
 ## Component scraping the kube controller manager
 ##
 kubeControllerManager:
-  enabled: false
+  enabled: true
 
   ## If your kube controller manager is not deployed as a pod, specify IPs it can be found on
   ##
@@ -1273,7 +1273,7 @@ kubeControllerManager:
 ## Component scraping coreDns. Use either this or kubeDns
 ##
 coreDns:
-  enabled: false
+  enabled: true
   service:
     port: 9153
     targetPort: 9153
@@ -1335,7 +1335,7 @@ coreDns:
 ## Component scraping kubeDns. Use either this or coreDns
 ##
 kubeDns:
-  enabled: false
+  enabled: true
   service:
     dnsmasq:
       port: 10054
@@ -1420,7 +1420,7 @@ kubeDns:
 ## Component scraping etcd
 ##
 kubeEtcd:
-  enabled: false
+  enabled: true
 
   ## If your etcd is not deployed as a pod, specify IPs it can be found on
   ##
@@ -1512,7 +1512,7 @@ kubeEtcd:
 ## Component scraping kube scheduler
 ##
 kubeScheduler:
-  enabled: false
+  enabled: true
 
   ## If your kube scheduler is not deployed as a pod, specify IPs it can be found on
   ##
@@ -1601,7 +1601,7 @@ kubeScheduler:
 ## Component scraping kube proxy
 ##
 kubeProxy:
-  enabled: false
+  enabled: true
 
   ## If your kube proxy is not deployed as a pod, specify IPs it can be found on
   ##
@@ -1676,7 +1676,7 @@ kubeProxy:
 ## Component scraping kube state metrics
 ##
 kubeStateMetrics:
-  enabled: false
+  enabled: true
 
 ## Configuration for kube-state-metrics subchart
 ##
@@ -1750,7 +1750,7 @@ kube-state-metrics:
 ## Deploy node exporter as a daemonset to all nodes
 ##
 nodeExporter:
-  enabled: false
+  enabled: true
 
 ## Configuration for prometheus-node-exporter subchart
 ##
@@ -1832,7 +1832,7 @@ prometheus-node-exporter:
 ## Manages Prometheus and Alertmanager components
 ##
 prometheusOperator:
-  enabled: true
+  enabled: false
 
   ## Prometheus-Operator v0.39.0 and later support TLS natively.
   ##
@@ -2985,7 +2985,92 @@ prometheus:
     ## The scrape configuration example below will find master nodes, provided they have the name .*mst.*, relabel the
     ## port to 2379 and allow etcd scraping provided it is running on all Kubernetes master nodes
     ##
-    additionalScrapeConfigs: []
+    additionalScrapeConfigs:
+      - job_name: kubernetes-cadvisor
+        honor_labels: true
+        scrape_interval: 10s
+        scrape_timeout: 10s
+        metrics_path: /metrics/cadvisor
+        scheme: https
+        kubernetes_sd_configs:
+        - role: node
+          namespaces:
+            names: []
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        relabel_configs:
+        - separator: ;
+          regex: __meta_kubernetes_node_label_(.+)
+          replacement: $1
+          action: labelmap
+        - separator: ;
+          regex: (.*)
+          target_label: __address__
+          replacement: kubernetes.default.svc:443
+          action: replace
+        - source_labels: [__meta_kubernetes_node_name]
+          separator: ;
+          regex: (.+)
+          target_label: __metrics_path__
+          replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+          action: replace
+        - source_labels: [__meta_kubernetes_node_name]
+          separator: ;
+          regex: (.*)
+          target_label: node_name
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_node_address_InternalIP]
+          separator: ;
+          regex: (.*)
+          target_label: node_ip
+          replacement: $1
+          action: replace
+        metric_relabel_configs:
+        - source_labels: [container, __name__]
+          separator: ;
+          regex: POD;container_(network).*
+          target_label: container
+          replacement: $1
+          action: replace
+        - source_labels: [container]
+          separator: ;
+          regex: POD
+          replacement: $1
+          action: drop
+        - source_labels: [container]
+          separator: ;
+          regex: ^$
+          replacement: $1
+          action: drop
+        - source_labels: [__name__]
+          separator: ;
+          regex: container_(network_tcp_usage_total|tasks_state|memory_failures_total|network_udp_usage_total)
+          replacement: $1
+          action: drop
+      - job_name: kubernetes-nodes-kubelet
+        scrape_interval: 10s
+        scrape_timeout: 10s
+        scheme: https
+        kubernetes_sd_configs:
+        - role: node
+          namespaces:
+            names: []
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - target_label: __address__
+          replacement: kubernetes.default.svc:443
+        - source_labels: [__meta_kubernetes_node_name]
+          regex: (.+)
+          target_label: __metrics_path__
+          replacement: /api/v1/nodes/${1}/proxy/metrics
     # - job_name: kube-etcd
     #   kubernetes_sd_configs:
     #     - role: node
@@ -3031,10 +3116,10 @@ prometheus:
     ## If additional scrape configurations are already deployed in a single secret file you can use this section.
     ## Expected values are the secret name and key
     ## Cannot be used with additionalScrapeConfigs
-    additionalScrapeConfigsSecret:
-      enabled: true
-      name: additional-scrape-configs
-      key: prometheus-additional.yaml
+    # additionalScrapeConfigsSecret:
+    #   enabled: true
+    #   name: additional-scrape-configs
+    #   key: prometheus-additional.yaml
 
     ## additionalPrometheusSecretsAnnotations allows to add annotations to the kubernetes secret. This can be useful
     ## when deploying via spinnaker to disable versioning on the secret, strategy.spinnaker.io/versioned: 'false'
@@ -3320,17 +3405,15 @@ prometheus:
           # serverName: ""
 
   additionalPodMonitors:
-  ## Name of the PodMonitor to create
-  ##
     - name: "kafka-resources-metrics"
       additionalLabels:
-        app: strimzi
+        app: quine
       selector:
         matchLabels:
           strimzi.io/kind: Kafka
       namespaceSelector:
         matchNames:
-          - app
+          - default
       podMetricsEndpoints:
         - path: /metrics
           port: tcp-prometheus

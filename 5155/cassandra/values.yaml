@@ -174,13 +174,13 @@ jvm:
   ## - calculate 1/4 ram and cap to 8192MB
   ## - pick the max
   ##
-  maxHeapSize: ""
+  maxHeapSize: "1500M"
   ## newHeapSize:
   ## A good guideline is 100 MB per CPU core.
   ## - min(100 * num_cores, 1/4 * heap size)
   ## ref: https://docs.datastax.com/en/archived/cassandra/2.0/cassandra/operations/ops_tune_jvm_c.html
   ##
-  newHeapSize: ""
+  newHeapSize: "375M"
 ## @param command Command for running the container (set to default if not set). Use array form
 ##
 command: []
@@ -305,18 +305,15 @@ containerSecurityContext:
 ## @param resources.requests The requested resources for Cassandra containers
 ##
 resources:
-  ## Example:
-  ## limits:
-  ##    cpu: 2
-  ##    memory: 4Gi
-  ##
   limits: {}
+    # cpu: 2
+    # memory: 6Gi
   ## Examples:
-  ## requests:
-  ##    cpu: 2
-  ##    memory: 4Gi
-  ##
   requests: {}
+  #    cpu: 2
+  #    memory: 6Gi
+  ##
+  ## java -XX:+PrintFlagsFinal -version | grep HeapSize
 ## Configure extra options for Cassandra containers' liveness and readiness probes
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
 ## @param livenessProbe.enabled Enable livenessProbe
