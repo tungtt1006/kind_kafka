@@ -1,36 +1,36 @@
-# resource "helm_release" "influxdb" {
-#   name       = "write-influxdb"
-#   repository = "https://helm.influxdata.com/"
-#   chart      = "influxdb2"
-#   version    = "2.1.0"
-#   namespace  = var.namespace
+resource "helm_release" "influxdb" {
+  name       = "write-influxdb"
+  repository = "https://helm.influxdata.com/"
+  chart      = "influxdb2"
+  version    = "2.1.0"
+  namespace  = var.namespace
 
-#   set {
-#     name  = "adminUser.token"
-#     value = var.influxdb_token
-#   }
-#   set {
-#     name  = "adminUser.organization"
-#     value = "Testorg"
-#   }
-#   set {
-#     name  = "adminUser.bucket"
-#     value = "test"
-#   }
-#   set {
-#     name  = "adminUser.user"
-#     value = var.influxdb_user
-#   }
-#   set {
-#     name  = "adminUser.password"
-#     value = var.influxdb_password
-#   }
+  set {
+    name  = "adminUser.token"
+    value = var.influxdb_token
+  }
+  set {
+    name  = "adminUser.organization"
+    value = "Testorg"
+  }
+  set {
+    name  = "adminUser.bucket"
+    value = "test"
+  }
+  set {
+    name  = "adminUser.user"
+    value = var.influxdb_user
+  }
+  set {
+    name  = "adminUser.password"
+    value = var.influxdb_password
+  }
 
-#   set {
-#     name  = "persistence.size"
-#     value = "5Gi"
-#   }
-# }
+  set {
+    name  = "persistence.size"
+    value = "5Gi"
+  }
+}
 
 # resource "helm_release" "telegraf" {
 #   depends_on = [

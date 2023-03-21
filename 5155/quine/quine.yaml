@@ -31,13 +31,13 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /quine
-          command: ["sh", "-c", "#!sh \n java -Dconfig.file=/quine/quine.conf -jar quine-assembly-1.5.1.jar"]
-          # command:
-          #   [
-          #     "sh",
-          #     "-c",
-          #     "#!sh \n java -Dconfig.file=/quine/quine.conf -jar quine-assembly-1.5.1.jar -r /quine/kafka-ingest.yaml --force-config",
-          #   ]
+          command:
+            [
+              "sh",
+              "-c",
+              "#!sh \n java -Dconfig.file=/quine/quine.conf -jar quine-assembly-1.5.1.jar -r /quine/kafka-ingest.yaml --force-config",
+            ]
+
 ---
 apiVersion: v1
 kind: Service
@@ -85,7 +85,7 @@ data:
       - type: KafkaIngest
         topics:
           - quine
-        bootstrapServers: "strimzi-kafka-kafka-bootstrap:9092"
+        bootstrapServers: strimzi-kafka-kafka-bootstrap.svc.cluster.local:9092
         format:
           type: CypherJson
           query: |-
@@ -101,7 +101,7 @@ data:
           toKafka:
             type: WriteToKafka
             topic: quine-output
-            bootstrapServers: "strimzi-kafka-kafka-bootstrap:9092"
+            bootstrapServers: strimzi-kafka-kafka-bootstrap.svc.cluster.local:9092
             format:
               type: JSON
     nodeAppearances: [ ]
@@ -109,6 +109,9 @@ data:
     sampleQueries: [ ]
   quine.conf: |+
     quine {
+        dump-config = yes
+        should-resume-ingest = yes
+
         store {
             # store data in an Apache Cassandra instance
             type = cassandra
