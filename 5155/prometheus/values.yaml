@@ -9,7 +9,7 @@ nameOverride: ""
 
 ## Override the deployment namespace
 ##
-namespaceOverride: "app"
+namespaceOverride: ""
 
 ## Provide a k8s version to auto dashboard import script example: kubeTargetVersionOverride: 1.16.6
 ##
@@ -742,8 +742,8 @@ alertmanager:
 ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
 ##
 grafana:
-  enabled: true
-  namespaceOverride: "app"
+  enabled: false
+  namespaceOverride: ""
 
   ## ForceDeployDatasources Create datasource configmap even if grafana deployment has been disabled
   ##
@@ -809,7 +809,7 @@ grafana:
 
   sidecar:
     dashboards:
-      enabled: true
+      enabled: false
       label: grafana_dashboard
       labelValue: "1"
 
@@ -922,7 +922,7 @@ grafana:
 ## Component scraping the kube api server
 ##
 kubeApiServer:
-  enabled: true
+  enabled: false
   tlsConfig:
     serverName: kubernetes
     insecureSkipVerify: false
@@ -1676,7 +1676,7 @@ kubeProxy:
 ## Component scraping kube state metrics
 ##
 kubeStateMetrics:
-  enabled: false
+  enabled: true
 
 ## Configuration for kube-state-metrics subchart
 ##
@@ -2985,7 +2985,10 @@ prometheus:
     ## The scrape configuration example below will find master nodes, provided they have the name .*mst.*, relabel the
     ## port to 2379 and allow etcd scraping provided it is running on all Kubernetes master nodes
     ##
-    additionalScrapeConfigs: []
+    additionalScrapeConfigs:
+      - job_name: node-exporter
+        static_configs:
+          - targets: ['kube-prometheus-stack-prometheus-node-exporter:9100']
     # - job_name: kube-etcd
     #   kubernetes_sd_configs:
     #     - role: node
@@ -3031,10 +3034,10 @@ prometheus:
     ## If additional scrape configurations are already deployed in a single secret file you can use this section.
     ## Expected values are the secret name and key
     ## Cannot be used with additionalScrapeConfigs
-    additionalScrapeConfigsSecret:
-      enabled: true
-      name: additional-scrape-configs
-      key: prometheus-additional.yaml
+    additionalScrapeConfigsSecret: {}
+    #   enabled: true
+    #   name: additional-scrape-configs
+    #   key: prometheus-additional.yaml
 
     ## additionalPrometheusSecretsAnnotations allows to add annotations to the kubernetes secret. This can be useful
     ## when deploying via spinnaker to disable versioning on the secret, strategy.spinnaker.io/versioned: 'false'
