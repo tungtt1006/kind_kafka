@@ -15,19 +15,19 @@ spec:
         port: 9093
         tls: true
         type: internal
-      # - name: expose
-      #   port: 9094
-      #   type: ingress
-      #   tls: true
-      #   authentication:
-      #     type: tls
-      #   configuration:
-      #     bootstrap:
-      #       host: bootstrap.foobar.com
-      #     brokers:
-      #     - broker: 0
-      #       host: broker-0.foobar.com
-      #     class: "nginx"
+      - name: expose
+        port: 9094
+        type: ingress
+        tls: true
+        # authentication:
+        #   type: tls
+        configuration:
+          bootstrap:
+            host: bootstrap.test.com
+          brokers:
+          - broker: 0
+            host: broker-0.test.com
+          class: "nginx"
     readinessProbe:
       initialDelaySeconds: 15
       timeoutSeconds: 5
