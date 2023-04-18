@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test
+spec:
+  replicas: 9
+  selector:
+    matchLabels:
+      app: quine
+  template:
+    metadata:
+      labels:
+        app: quine
+    spec:
+      containers:
+        - name: phpmyadmin
+          image: phpmyadmin/phpmyadmin
+          ports:
+            - containerPort: 80
+          resources: {}
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app: quine
+            version: v1
+        maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
