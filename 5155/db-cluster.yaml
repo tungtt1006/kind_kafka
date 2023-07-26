@@ -3,7 +3,7 @@ kind: Cluster
 name: kafka
 nodes:
   - role: control-plane
-    image: kindest/node:v1.23.17@sha256:f77f8cf0b30430ca4128cc7cfafece0c274a118cd0cdb251049664ace0dee4ff
+    image: kindest/node:v1.22.13@sha256:4904eda4d6e64b402169797805b8ec01f50133960ad6c19af45173a27eadf959
     # kubeadmConfigPatches:
     # - |
     #   kind: InitConfiguration
@@ -18,6 +18,8 @@ nodes:
     #     hostPort: 443
     #     protocol: TCP
   - role: worker
-    image: kindest/node:v1.23.17@sha256:f77f8cf0b30430ca4128cc7cfafece0c274a118cd0cdb251049664ace0dee4ff
-  # - role: worker
-  # - role: worker
+    image: kindest/node:v1.22.13@sha256:4904eda4d6e64b402169797805b8ec01f50133960ad6c19af45173a27eadf959
+  - role: worker
+    image: kindest/node:v1.22.13@sha256:4904eda4d6e64b402169797805b8ec01f50133960ad6c19af45173a27eadf959
+  - role: worker
+    image: kindest/node:v1.22.13@sha256:4904eda4d6e64b402169797805b8ec01f50133960ad6c19af45173a27eadf959
